@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    id("com.github.johnrengelman.shadow")
 }
 
 group = "us.ajg0702.queue.platforms.velocity"
@@ -30,6 +31,9 @@ dependencies {
     implementation(project(":api"))
 }
 
+tasks.shadowJar {
+    relocate("org.bstats", "us.ajg0702.queue.libs.bstats")
+}
 
 tasks.withType<ProcessResources> {
     from(sourceSets.main.get().java.srcDirs)
@@ -42,6 +46,8 @@ tasks.withType<ProcessResources> {
 
 tasks.jar {
     exclude("**/*.java")
+
+
 }
 
 tasks.compileJava {
