@@ -31,10 +31,6 @@ dependencies {
     implementation(project(":api"))
 }
 
-tasks.shadowJar {
-    relocate("org.bstats", "us.ajg0702.queue.libs.bstats")
-}
-
 tasks.withType<ProcessResources> {
     from(sourceSets.main.get().java.srcDirs)
     filter<org.apache.tools.ant.filters.ReplaceTokens>(
@@ -46,19 +42,21 @@ tasks.withType<ProcessResources> {
 
 tasks.jar {
     exclude("**/*.java")
-
-
 }
 
 tasks.compileJava {
     source = tasks.getByName("processResources").outputs.files.asFileTree
 }
 
+// Configuración del sombreado y la reubicación
+tasks.shadowJar {
+    relocate("org.bstats", "us.ajg0702.relocated.bstats") // Reubicar el paquete bstats
+}
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            artifact(tasks["jar"])
+            artifact(tasks["shadowJar"]) // Publicar el JAR sombreado
         }
     }
 
@@ -66,7 +64,7 @@ publishing {
 
         val mavenUrl = "https://repo.ajg0702.us/releases"
 
-        if(!System.getenv("REPO_TOKEN").isNullOrEmpty()) {
+        if (!System.getenv("REPO_TOKEN").isNullOrEmpty()) {
             maven {
                 url = uri(mavenUrl)
                 name = "ajRepo"
